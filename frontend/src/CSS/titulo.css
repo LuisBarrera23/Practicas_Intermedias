@@ -1,0 +1,47 @@
+.title {
+  font-size: 55px;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+  
+}
+
+.box {
+  background-color: rgba(2, 5, 26, 0.575);
+  border-radius: 10%;
+  margin-top: 210px;  
+  margin-left: 100px;
+  padding: 20px;
+}
+
+.title__parpadeo {
+  animation: blink 1s linear infinite;
+}
+
+.boton {
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  margin-left: 60px;
+  margin-top: 20px;
+  color: white;
+}
+
+
+
+.modal{ 
+  --bs-modal-width: 80% !important;
+}
+
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

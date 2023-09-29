@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: PI_1222
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+  backend:
+    container_name: backend
+    restart: always
+    build: ./Backend
+    image: backend_pi
+    environment:
+      TZ: America/Guatemala
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    links: 
+      - db
+
+  frontend:
+    container_name: frontend
+    restart: always
+    image: ennox2/frontend_practica1_202011535
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
