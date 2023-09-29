@@ -1,24 +1,50 @@
 const express = require("express");
-const dbConnection = require("./db.js")
-// const moment = require('moment');
+const mysql = require('mysql2');
 const cors = require("cors");
 const app = express();
-// const tiempo = moment();
+const moment = require('moment-timezone');
+moment.tz.setDefault('America/Guatemala');
 
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
+
+// Configura la conexión de piscina a la base de datos
+const pool = mysql.createPool({
+    host: 'mysql-db',
+    user: 'root',
+    password: '1234',
+    database: 'pi',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+});
+
+pool.on('error', (err) => {
+    console.error('MySQL Pool Error: ' + err.message);
+});
 
 app.get("/", function (req, res) {
     res.send("Server on port 5000");
 });
 
 app.get("/Get", function (req, res) {
-    dbConnection.connect(function (err) {
-        if (err) throw err;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting MySQL connection: ' + err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
         var sql = `SELECT * FROM operaciones`;
-        dbConnection.query(sql, function (err, result) {
-            if (err) throw err;
+        connection.query(sql, (err, result) => {
+            connection.release(); // Importante: liberar la conexión cuando hayas terminado
+            if (err) {
+                console.error('Error executing MySQL query: ' + err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+
             const history = result.map(register => ({
                 "Id": register.id,
                 "Num1": register.num1,
@@ -34,45 +60,53 @@ app.get("/Get", function (req, res) {
 
 app.post("/Insertar", function (req, res) {
     const operacion = req.body;
+    console.log(operacion)
 
-    var result = 0.0;
+    var finalresult = 0.0;
 
-    switch (operacion.Op) {
+    switch (operacion.operacion) {
         case '+':
-            result = operacion.Num1 + operacion.Num2;
+            finalresult = operacion.num1 + operacion.num2;
             break;
         case '-':
-            result = operacion.Num1 - operacion.Num2;
+            finalresult = operacion.num1 - operacion.num2;
             break;
         case '*':
-            result = operacion.Num1 * operacion.Num2;
+            finalresult = operacion.num1 * operacion.num2;
             break;
         case '/':
-            if (operacion.Num2 === 0){
-
+            if (operacion.num2 === 0) {
+                res.send({ mensaje: "Division entre 0!", resultado: 0 });
+                break;
             }
-            result = operacion.Num1 + operacion.Num2;
+            finalresult = operacion.num1 / operacion.num2;
             break;
         default:
+            res.send({ mensaje: "Operacion no encontrada", resultado: 0 });
             console.log('Este es el caso por defecto');
     }
 
-    dbConnection.connect(function (err) {
-        if (err) throw err;
-        var sql = `INSERT INTO operaciones (id, num1, num2, operacion, result, fecha) VALUES (NULL, ?, ?, ?, ?, ?)`;
-        dbConnection.query(sql, function (err, result) {
-            if (err) throw err;
-            const history = result.map(register => ({
-                "Id": register.id,
-                "Num1": register.num1,
-                "Num2": register.num2,
-                "Result": register.result,
-                "Op": register.operacion,
-                "Fecha": register.fecha,
-            }));
-            res.send(history);
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting MySQL connection: ' + err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        const tiempo = moment();
+        const temp = tiempo.format('YYYY/MM/DD HH:mm:ss');
+
+        var sql = `INSERT INTO operaciones (num1, num2, operacion, result, fecha) VALUES (?, ?, ?, ?, ?)`;
+        connection.query(sql, [operacion.num1, operacion.num2, operacion.operacion, finalresult, temp], (err, result) => {
+            connection.release(); // Importante: liberar la conexión cuando hayas terminado
+            if (err) {
+                console.error('Error executing MySQL query: ' + err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            console.log({ mensaje: "ok", resultado: finalresult })
+            res.send({ mensaje: "ok", resultado: finalresult });
         });
     });
 });
 
-app.listen(5000, () => console.log("Server on port 5000"));
+app.listen(8080, () => console.log("Server on port 5000"));
