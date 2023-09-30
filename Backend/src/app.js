@@ -38,7 +38,7 @@ app.get("/Get", function (req, res) {
 
         var sql = `SELECT * FROM operaciones`;
         connection.query(sql, (err, result) => {
-            connection.release(); // Importante: liberar la conexión cuando hayas terminado
+            connection.release();
             if (err) {
                 console.error('Error executing MySQL query: ' + err);
                 res.status(500).send('Internal Server Error');
@@ -97,7 +97,7 @@ app.post("/Insertar", function (req, res) {
 
         var sql = `INSERT INTO operaciones (num1, num2, operacion, result, fecha) VALUES (?, ?, ?, ?, ?)`;
         connection.query(sql, [operacion.num1, operacion.num2, operacion.operacion, finalresult, temp], (err, result) => {
-            connection.release(); // Importante: liberar la conexión cuando hayas terminado
+            connection.release();
             if (err) {
                 console.error('Error executing MySQL query: ' + err);
                 res.status(500).send('Internal Server Error');
