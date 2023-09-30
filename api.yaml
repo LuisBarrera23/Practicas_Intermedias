@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+  name: api
+  namespace: grupo1222
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: rmaster22133/backend_pi:v1.0
+        imagePullPolicy: Always
+        name: api
+        env: 
+          - name: ENTORNOMYSQL
+            value: "34.172.40.142"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+  namespace: grupo1222
+spec:
+  type: LoadBalancer
+  loadBalancerIP: "34.31.1.40"
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: api

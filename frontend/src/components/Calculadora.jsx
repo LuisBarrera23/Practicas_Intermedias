@@ -120,7 +120,7 @@ const Calculadora = () => {
       console.log("Signo " + simbolo)
 
       axios
-      .post('http://localhost:8080/Insertar', {
+      .post('http://34.31.1.40:8080/Insertar', {
         'num1': parseFloat(primero),  
         'num2': parseFloat(numero),
         'operacion': simbolo

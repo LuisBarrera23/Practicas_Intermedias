@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configura la conexión de piscina a la base de datos
 const pool = mysql.createPool({
-    host: 'mysql-db',
+    host: process.env.ENTORNOMYSQL,
     user: 'root',
     password: '1234',
     database: 'pi',

@@ -7,7 +7,7 @@ const Tabla = (props) => {
 
     useEffect(() => {
         async function fetchData() {
-          const response = await axios.get('http://localhost:8080/Get');
+          const response = await axios.get('http://34.31.1.40:8080/Get');
           setData(response.data);
         }
         fetchData();

@@ -20,8 +20,8 @@ services:
   backend:
     container_name: backend
     restart: always
-    build: ./Backend
-    image: backend_pi
+    # build: ./Backend
+    image: rmaster22133/backend_pi
     ports:
       - "8080:8080"
     depends_on:
